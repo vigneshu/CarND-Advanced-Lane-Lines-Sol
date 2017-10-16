@@ -72,22 +72,18 @@ class Polyfitter:
 
     def measure_curvature(self, img, leftx, rightx,lefty, righty):
         ploty = np.linspace(0, 719, num=720)  # to cover same y-range as image
-        quadratic_coeff = 3e-4  # arbitrary quadratic coefficient
         ym_per_pix = 30 / 720  # meters per pixel in y dimension
         xm_per_pix = 3.7 / 700  # meters per pixel in x dimension
         y_eval = np.max(ploty) * ym_per_pix
-        left_curverad = ((1 + (2 * self.left_fit[0] * y_eval + self.left_fit[1]) ** 2) ** 1.5) / np.absolute(2 * self.left_fit[0])
-        right_curverad = ((1 + (2 * self.right_fit[0] * y_eval + self.right_fit[1]) ** 2) ** 1.5) / np.absolute(2 * self.right_fit[0])
 
-        ratio = left_curverad / right_curverad
-        
-        if ratio < 0.66 or ratio > 1.5:
-            print('Warning: shitty ratio {}'.format(ratio))
         left_fit_cr = np.polyfit(lefty*ym_per_pix, leftx*xm_per_pix, 2)
         right_fit_cr = np.polyfit(righty*ym_per_pix, rightx*xm_per_pix, 2)            
 
-        lane_leftx = left_fit_cr[0] * (img.shape[0] - 1) ** 2 + left_fit_cr[1] * (img.shape[0] - 1) + left_fit_cr[2]
-        lane_rightx = right_fit_cr[0] * (img.shape[0] - 1) ** 2 + right_fit_cr[1] * (img.shape[0] - 1) + right_fit_cr[2]
+        left_curverad = ((1 + (2 * left_fit_cr[0] * y_eval + left_fit_cr[1]) ** 2) ** 1.5) / np.absolute(2 * left_fit_cr[0])
+        right_curverad = ((1 + (2 * right_fit_cr[0] * y_eval + right_fit_cr[1]) ** 2) ** 1.5) / np.absolute(2 * right_fit_cr[0])
+
+        lane_leftx = self.left_fit[0] * (img.shape[0] - 1) ** 2 + self.left_fit[1] * (img.shape[0] - 1) + self.left_fit[2]
+        lane_rightx = self.right_fit[0] * (img.shape[0] - 1) ** 2 + self.right_fit[1] * (img.shape[0] - 1) + self.right_fit[2]
 
         car_pos = ((img.shape[1] / 2) - ((lane_leftx + lane_rightx) / 2)) * xm_per_pix
 
