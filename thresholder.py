@@ -13,8 +13,23 @@ class Thresholder:
 
         self.thresh_mag_min = 50
         self.thresh_mag_max = 255
-      
-    def threshold(self,img):
+    def threshold(self,image):
+        lower = np.array([202,202,202])
+        upper = np.array([255,255,255])
+        white = cv2.inRange(image, lower, upper)
+        misc.imsave('output_images/white.jpg', white)
+        hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+        lower = np.array([20,60,60])
+        upper = np.array([38,174, 250])
+        yellow = cv2.inRange(hsv, lower, upper)
+        misc.imsave('output_images/yellow.jpg', yellow)
+        
+        combined_binary = np.zeros_like(white)
+        misc.imsave('output_images/combined_binary.jpg', combined_binary)
+        combined_binary[(white>=1)|(yellow>=1)] = 1
+    
+        return combined_binary     
+    def threshold_old(self,img):
 
         imag = img
         imn=img
@@ -22,7 +37,7 @@ class Thresholder:
         
         #img[0:364,:]=0
         #misc.imsave('output_images/skyskip.jpg', img)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV).astype("float32")
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2HSV).astype("float32")
         (h, s, v) = cv2.split(img)
         s = s*2.4
         s = np.clip(s,0,255)
@@ -40,7 +55,7 @@ class Thresholder:
         #yellow_shellr = cv2.blur(yellow_mask,(5,5))
         #misc.imsave('output_images/ymr.jpg', yellow_shellr)
 
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2HLS)
         yellow_min = np.array([10, 0, 100], np.uint8)
         yellow_max = np.array([30, 255, 255], np.uint8)
         yellow_mask = cv2.inRange(img, yellow_min, yellow_max)

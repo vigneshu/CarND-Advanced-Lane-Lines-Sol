@@ -12,9 +12,6 @@ class Polyfitter:
     def polyfit(self, img):
         return self.polyfit_sliding(img)
     def polyfit_sliding(self, img):
-
-               
-        
         histogram = np.sum(img[int(img.shape[0] / 2):, :], axis=0)
         out_img = np.dstack((img, img, img)) * 255
         midpoint = np.int(histogram.shape[0] / 2)
@@ -66,76 +63,31 @@ class Polyfitter:
         lefty = nonzeroy[left_lane_inds]
         self.rightx = nonzerox[right_lane_inds]
         righty = nonzeroy[right_lane_inds]
-        # nonzerotrial0 = img.nonzero()
 
-#        print(self.leftx)
-#        print(lefty)
-#        print(self.rightx)
-#        print(righty)
-#        print(((self.leftx==[])|(lefty==[])|(self.rightx==[])|(righty==[])))
-#        print(len(self.leftx)==0)
-
-        flag = False
-        if ((len(self.leftx)==0)|(len(lefty)==0)|(len(self.rightx)==0)|(len(righty)==0)):
-            print("dropping leftx,rightx,lefty,righty zero")
-            self.left_fit = [0,0,0]
-            self.right_fit = [0,0,0]
-            flag = True
-        else:
+        if len(self.leftx) != 0:
             self.left_fit = np.polyfit(lefty, self.leftx, 2)
+        if len(self.rightx) != 0:
             self.right_fit = np.polyfit(righty, self.rightx, 2)
-#        self.left_fit=[0,0,0]
-#        self.right_fit = [0,0,0]
-        ploty = np.linspace(0, 719, num=720)  # to cover same y-range as image
-        y_eval = np.max(ploty)
-        left_curverad = ((1 + (2 * self.left_fit[0] * y_eval + self.left_fit[1]) ** 2) ** 1.5) / np.absolute(2 * self.left_fit[0])
-        right_curverad = ((1 + (2 * self.right_fit[0] * y_eval + self.right_fit[1]) ** 2) ** 1.5) / np.absolute(2 * self.right_fit[0])
+        return self.left_fit, self.right_fit, self.leftx, self.rightx, lefty, righty
 
-        ratio = left_curverad / right_curverad
-        # if ratio < 0.66 or ratio > 1.5:
-        # if ratio < 0.46 or ratio > 1.5:
-        # if ratio < 0.46 or ratio > 1.65:
-        if ratio < 0.2 or ratio > 10:
-        # if ratio < 0.46 or ratio > 1.8:
-        # if ratio < 0.3 or ratio > 2:
-            self.left_fit = [0,0,0]
-            self.right_fit = [0,0,0]
-            print("ratio bad dropping ",ratio) 
-            if flag:
-                print("leftx,rightx,lefty,righty zero and bad ratio") 
-        flagg = False
-        if self.left_fit is None:
-            flagg = True
-        if self.right_fit is None:
-            flagg = True
-        if np.all(self.left_fit == [0.0,0.0,0.0]):
-            flagg = True
-        if np.all(self.right_fit == [0.0,0.0,0.0]):
-            flagg = True
-        if np.all(self.left_fit == [0,0,0]):
-            flagg = True
-        if np.all(self.right_fit == [0,0,0]):
-            flagg = True 
-        return self.left_fit, self.right_fit
-
-    def measure_curvature(self, img):
+    def measure_curvature(self, img, leftx, rightx,lefty, righty):
         ploty = np.linspace(0, 719, num=720)  # to cover same y-range as image
         quadratic_coeff = 3e-4  # arbitrary quadratic coefficient
-        y_eval = np.max(ploty)
-        left_curverad = ((1 + (2 * self.left_fit[0] * y_eval + self.left_fit[1]) ** 2) ** 1.5) / np.absolute(2 * self.left_fit[0])
-        right_curverad = ((1 + (2 * self.right_fit[0] * y_eval + self.right_fit[1]) ** 2) ** 1.5) / np.absolute(2 * self.right_fit[0])
-        # print(left_curverad, right_curverad)
-
         ym_per_pix = 30 / 720  # meters per pixel in y dimension
         xm_per_pix = 3.7 / 700  # meters per pixel in x dimension
+        y_eval = np.max(ploty) * ym_per_pix
+        left_curverad = ((1 + (2 * self.left_fit[0] * y_eval + self.left_fit[1]) ** 2) ** 1.5) / np.absolute(2 * self.left_fit[0])
+        right_curverad = ((1 + (2 * self.right_fit[0] * y_eval + self.right_fit[1]) ** 2) ** 1.5) / np.absolute(2 * self.right_fit[0])
 
         ratio = left_curverad / right_curverad
-        # if ratio < 0.46 or ratio > 1.65:
+        
         if ratio < 0.66 or ratio > 1.5:
             print('Warning: shitty ratio {}'.format(ratio))
+        left_fit_cr = np.polyfit(lefty*ym_per_pix, leftx*xm_per_pix, 2)
+        right_fit_cr = np.polyfit(righty*ym_per_pix, rightx*xm_per_pix, 2)            
 
-        lane_leftx = self.left_fit[0] * (img.shape[0] - 1) ** 2 + self.left_fit[1] * (img.shape[0] - 1) + self.left_fit[2]
-        lane_rightx = self.right_fit[0] * (img.shape[0] - 1) ** 2 + self.right_fit[1] * (img.shape[0] - 1) + self.right_fit[2]
+        lane_leftx = left_fit_cr[0] * (img.shape[0] - 1) ** 2 + left_fit_cr[1] * (img.shape[0] - 1) + left_fit_cr[2]
+        lane_rightx = right_fit_cr[0] * (img.shape[0] - 1) ** 2 + right_fit_cr[1] * (img.shape[0] - 1) + right_fit_cr[2]
 
         car_pos = ((img.shape[1] / 2) - ((lane_leftx + lane_rightx) / 2)) * xm_per_pix
 

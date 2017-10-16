@@ -22,7 +22,10 @@ The goals / steps of this project are the following:
 [image7]: ./output_images/wk.jpg "white mask"
 [image11]: ./output_images/final.jpg "output"
 [image12]: ./output_images/color_masks3.jpg "color mask with canny edges"
-[video1]: ./output_videos/project_video_20171016-001347.webm "project__Video"
+[video1]: ./output_videos/output_video.webm "project__Video"
+[white]: ./output_images/white.jpg "White lane lines"
+[yellow]: ./output_images/yellow.jpg "Yellow lane lines"
+[combined]: ./output_images/combined_binary.jpg "Combining white and Yellow lines"
 
 [image29]: ./output_images/prewarp.jpg "prewarp"
 
@@ -60,10 +63,8 @@ converted images to HSV from rgb and saturated the 's' by 2.5 times, which accou
 To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
 
 ![alt text][image2]
-### 1.4 Apply gaussian blur
- I applied gaussian blur on window size of 3x3 to smoothen the image.
 
-#### 1.5. perspective transform martrix
+### 1.4. perspective transform martrix
 
 THe points for ipm are :
 
@@ -92,51 +93,28 @@ This resulted in the following source and destination points:
 I verified that my perspective transform was working as expected by drawing the `src` and `dst` points onto a test image and its warped counterpart to verify that the lines appear parallel in the warped image.
 
 ![alt text][image8]
-    
-### 1.6 canny edge detector
 
-Apply cv canny edge detector to find edges in the images and save it under a different name.
-![alt text][image3]
+### 1.5 create masks for white color, yellow color
 
-### 1.7 create masks for white color, yellow color
+Applied thresholds to detect white and yellow lines. Below are the images obtained from thresholding
+![alt text][yellow] 
 
-Created three kinds of white masks to suits various terrain and weather conditions and have one yellow mask.
+![alt text][white]  
 
-
-all color masks are created in HSL COLOR SPACE for better results.
-
-
-![yellow mask][image4] 
-
-![white mask][image7]  
-
-
-
-### 1.7 bitwise canny and color masks
-
-do bitwise && operator on color mask of yellow and canny and store as img1
-
-do bitwise && operator on color mask of white and img1 , the end result is an image containing strips of lanes.
-
-
-![alt text][image12]
-
-recommended color masks
-
+Then combined the images to form a complete set of lane lines
+![alt text][combined]  
 
 
 
 #### 4. polyfit and mean averaging filter for convolution
+
 
 I used poly fit in 2nd degree equation to find the coeff A,B on left side and right side,
 
 whenever I cannot find reasonable points for coe-ffs, I designed a mean averaging convolution filter for the A,B values which consists
 of 10 past values , which even predicts the coeffs for unidentified lanes and color of the road changes to red if lane detection is bad
 and if detection is good it shows green color.
-
-I even show value of confidence on prediction of lanes for safety in the console.
-
-
+The mean filter is not being used at the moment as the results were good without it. Improving the mean filter could help solving the harder video challenges
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
@@ -163,7 +141,6 @@ before wrapping back.
 Here's  my output video
 project video
 ![alt text][video1]
-link is ./output_videos/project_video_20170924-224845.webm
 
 
 
@@ -171,28 +148,4 @@ link is ./output_videos/project_video_20170924-224845.webm
 1. make it real time
 2. may be reduce my mean averaging weight filter and may try use median filtering for faster response based on previous values.
 
-###for reviewers
-new edits:
 
-changed my pipeline order and 
-
-IMproved thresholding a lot to improve detection, which is almost in all frames.
-
-Read the papers and mehdi squali's medium post, actually I tried building my pipeline intially based on his and drifted a 
-lot to build my own and if run my code vs his code on various datasets, you can see the code never breaks, detection is lot effective and gives a weighted fir filter to smoothen out the detection over 10 frames, my code works under tunnels, bridges, overhead lighting in tunnels, most of the shadows from overhead passes in flyover.
-
-I have tried collecting my own data and analyse the code and compared it with squali's code, I got better run results as mentioned above. I tried all above scenarios.
-
-regarding futurisitc improvements,
-
-I saw ice/ snow data online and I think we need to ahve adaptive switching program with different thresholders for snow/ normal days, same thresholders cannot vbe applied to both. and main thing we observe in snow is tracks of vehicles which are partly dirt/ not so white tracks left by previous vehicles vs lanes in normal days. 
-
-about mud tracks with no roadas or an single road with no lanes, we need to determine in the first place whether it is a single way or doubline line way, which can be from user input/ maps/ even by tracking vehicles in oppositedirection, which is not hte ideal case.
-
-I have seen rain and snow data, during a day with both snow and rain, the road becomes so glossy and shinning, that's the reason I used sautrate in my thresholding to accounting for rain days, lighting conditions and road lane marker wear out causing low color intensities. I tried my code on rain data and it works good.
-
-I have learned a lot on this project, I tried various data sets involving rain, rain with light snow, lane wear out, urban roads, highways, underpasses, bridges. thanks again.
-
-
-
-Thanks a lot.

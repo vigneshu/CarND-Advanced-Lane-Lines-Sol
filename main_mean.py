@@ -73,11 +73,6 @@ def process_image(base):
     imgpoly=base
     imgu= undistorter.undistort(base)
     misc.imsave('output_images/undistorted.jpg', imgu)
-
-
-
-    #z='undistorted_{}.jpg'.format(time_name)
-    #z1="./output_images/"+z
     imgw = warper.warp(imgu)
     misc.imsave('output_images/warped.jpg', imgw)
 
@@ -89,24 +84,13 @@ def process_image(base):
     imgt = thresholder.threshold(imgw)
     misc.imsave('output_images/thresholded.jpg', imgt)
     img=imgt
-    
- 
-    #img=roi.maskImage(img)
-    #misc.imsave('output_images/roi.jpg',img)
+    left_fit, right_fit, leftx, rightx, lefty, righty = polyfitter.polyfit(img)
 
-    
-    # i = show_image(fig, i, img, 'Thresholded', 'gray')
-
-    
-    # i = show_image(fig, i, img, 'Warped', 'gray')
-
-    left_fit, right_fit = polyfitter.polyfit(img)
-
-    lane_curve, car_pos = polyfitter.measure_curvature(img)
+    lane_curve, car_pos = polyfitter.measure_curvature(img, leftx, rightx, lefty, righty)
     # Linear filtering and rejection of bogus data for line coefficients
-    left_fit, right_fit = polyfitfilter.filterLineCoefficients(left_fit,right_fit)
+    # left_fit, right_fit = polyfitfilter.filterLineCoefficients(left_fit,right_fit)
     # print(polyfitfilter.confidence)
-    img = polydrawer.draw(imgpoly, left_fit, right_fit, warper.Minv, polyfitfilter.confidence)
+    img = polydrawer.draw(imgu, left_fit, right_fit, warper.Minv, polyfitfilter.confidence)
     misc.imsave('output_images/final.jpg', img)
 
    
@@ -116,13 +100,9 @@ def process_image(base):
     else:
         car_pos_text = '{}m left of center'.format(abs(car_pos))
 
-    # if polyfitfilter.confidence>0:
     cv2.putText(img, "Lane curve: {}m".format(lane_curve.round()), (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1,color=(255, 255, 255), thickness=2)
     cv2.putText(img, "Car is {}".format(car_pos_text), (10, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, color=(255, 255, 255),thickness=2)    
 
-    # show_image(fig, i, img, 'Final')
-    # plt.imshow(img)
-    # plt.show()
     return img
 
 
