@@ -172,9 +172,7 @@ link is ./output_videos/project_video_20170924-224845.webm
 2. may be reduce my mean averaging weight filter and may try use median filtering for faster response based on previous values.
 
 ###for reviewers
-
-Thanks for wonderful review 
-Followed last review and 
+new edits:
 
 changed my pipeline order and 
 
