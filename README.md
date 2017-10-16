@@ -22,9 +22,8 @@ The goals / steps of this project are the following:
 [image7]: ./output_images/wk.jpg "white mask"
 [image11]: ./output_images/final.jpg "output"
 [image12]: ./output_images/color_masks3.jpg "color mask with canny edges"
-[video1]: ./output_videos/project_video_20170924-224845.webm "project__Video"
-[video2]: ./output_videos/harder_challenge_video_20170924-224331.webm "harder_challenge"
-[video3]: ./output_videos/challenge_video_20170924-223723.webm "challenge_video"
+[video1]: ./output_videos/project_video_20171016-001347.webm "project__Video"
+
 [image29]: ./output_images/prewarp.jpg "prewarp"
 
 
@@ -166,15 +165,6 @@ project video
 ![alt text][video1]
 link is ./output_videos/project_video_20170924-224845.webm
 
-
-harder challenge
-
-![alt text][video2]
-
-link is ./output_videos/harder_challenge_video_20170924-224331.webm
-
-challenge video
-![alt text][video3] link is ./output_videos/challenge_video_20170924-223723.webm
 
 
 ### future considerations
