@@ -77,7 +77,7 @@ class Polyfitter:
 
         flag = False
         if ((len(self.leftx)==0)|(len(lefty)==0)|(len(self.rightx)==0)|(len(righty)==0)):
-            printf("dropping leftx,rightx,lefty,righty zero")
+            print("dropping leftx,rightx,lefty,righty zero")
             self.left_fit = [0,0,0]
             self.right_fit = [0,0,0]
             flag = True
